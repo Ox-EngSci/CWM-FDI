@@ -8,6 +8,7 @@ so the computation has an observable result.
 
 import sys
 from typing import List
+import time
 
 Matrix = List[List[float]]
 
@@ -26,6 +27,7 @@ def zero_matrix(n: int) -> Matrix:
 
 #Reorder loops to improve locality
 def matmul_fast1(a: Matrix, b: Matrix, c: Matrix, n: int) -> None:
+    time_start=time.perf_counter()
     for i in range(n):
         row_ai = a[i]
         row_ci = c[i]
@@ -34,9 +36,11 @@ def matmul_fast1(a: Matrix, b: Matrix, c: Matrix, n: int) -> None:
             for k in range(n):
                 total += row_ai[k] * b[k][j]
             row_ci[j] = total
+    print(f"Algo1 takes: {time.perf_counter()-time_start}")
 
 #Reorder loops to reduce inner loops
 def matmul_fast2(a: Matrix, b: Matrix, c: Matrix, n: int) -> None:
+    time_start=time.perf_counter()
     for i in range(n):
         row_ai = a[i]
         row_ci = c[i]
@@ -47,15 +51,17 @@ def matmul_fast2(a: Matrix, b: Matrix, c: Matrix, n: int) -> None:
             row_bk = b[k]
             for j in range(n):
               row_ci[j] += aik * row_bk[j]
-
+    print(f"Algo2 takes: {time.perf_counter()-time_start}")
+    
 def transpose(m: Matrix) -> Matrix:
     n = len(m)
     return [[m[i][j] for i in range(n)] for j in range(n)]
 
 #Matrix transpose method
 def matmul_fast3(a: Matrix, b: Matrix, c: Matrix, n: int) -> None:
+    time_start=time.perf_counter()
+    
     bt = transpose(b)
-
     for i in range(n):
         row_ai = a[i]
         row_ci = c[i]
@@ -65,6 +71,8 @@ def matmul_fast3(a: Matrix, b: Matrix, c: Matrix, n: int) -> None:
             for k in range(n):
                 total += row_ai[k] * row_btj[k]
             row_ci[j] = total
+            
+    print(f"Algo3 takes: {time.perf_counter()-time_start}")
 
 
 def checksum(m: Matrix, n: int) -> float:
@@ -111,9 +119,19 @@ def main(argv: list[str]) -> int:
     c = zero_matrix(n)
 
     for _ in range(reps):
-        matmul_fast3(a, b, c, n)
-
+        matmul_fast1(a, b, c, n)
     print(f"n={n} reps={reps} checksum={checksum(c, n):.6f}")
+
+    for _ in range(reps):
+        matmul_fast2(a, b, c, n)
+    print(f"n={n} reps={reps} checksum={checksum(c, n):.6f}")
+
+    for _ in range(reps):
+        matmul_fast3(a, b, c, n)
+    print(f"n={n} reps={reps} checksum={checksum(c, n):.6f}")
+    
+    
+    
     return 0
 
 
