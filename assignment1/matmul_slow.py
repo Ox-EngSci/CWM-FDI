@@ -8,6 +8,7 @@ so the computation has an observable result.
 
 import sys
 from typing import List
+import time
 
 Matrix = List[List[float]]
 
@@ -28,13 +29,26 @@ def zero_matrix(n: int) -> Matrix:
 # Intentionally simple O(n^3) matrix multiplication.
 # This loop order is correct but cache-unfriendly for matrix B.
 def matmul_slow(a: Matrix, b: Matrix, c: Matrix, n: int) -> None:
+    # For duration calcs
+    function_start=time.perf_counter()
+    cell_times=[] 
+    
+    # Actual function
     for i in range(n):
         for j in range(n):
+            cell_start=time.perf_counter() # For duration calcs
             total = 0.0
             for k in range(n):
                 total += a[i][k] * b[k][j]
             c[i][j] = total
-
+            
+    # For duration calcs
+    cell_time=time.perf_counter()-cell_start
+    cell_time.append((i,j,cell_time))
+    function_time=time.perf_counter()-function_start
+    print("cell calculation times")
+    print(cell_time)
+    print(f"function calc. time:{function_time}")
 
 def checksum(m: Matrix, n: int) -> float:
     total = 0.0
